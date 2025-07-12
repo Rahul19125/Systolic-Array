@@ -1,0 +1,78 @@
+`timescale 1ns / 1ps
+module systolic_array(
+ clk,reset,a1,a2,a3,
+b1,b2,b3,c1,c2,c3,c4,c5,c6,c7,c8,c9
+    );
+    
+    parameter data_size = 32;
+    input clk,reset;
+    input wire signed [data_size -1:0]a1,a2,a3;
+    input wire signed [data_size -1:0] b1,b2,b3;
+    output wire signed [2*data_size -1:0] c1,c2,c3,c4,c5,c6,c7,c8,c9;
+     
+       wire signed [data_size-1:0] b2d,b22d,b3d,b33d,a2d,a22d,a3d,a33d,am1h,bm1v,am2h,bm2v,am3h,bm3v,am4h,bm4v,am5h,bm5v,am6h,bm6v,am7h,bm7v,am8h,bm8v,am9h,bm9v;  
+        
+        PE pe11 (.clk(clk),.reset(reset), .a_in(a1),.b_in(b1),.a_out(am1h),.b_out(bm1v),.c_out(c1));
+        
+        dff g1 (.clk(clk), .reset(reset),.d(b2),.q(b2d));
+        PE pe12 (.clk(clk),.reset(reset), .a_in(am1h),.b_in(b2d),.a_out(am2h),.b_out(bm2v),.c_out(c2));
+        
+        dff g2(.clk(clk),.reset(reset),.d(b3),.q(b3d));
+        dff g3(.clk(clk),.reset(reset),.d(b3d),.q(b33d));
+        PE pe13 (.clk(clk),.reset(reset), .a_in(am2h),.b_in(b33d),.a_out(am3h),.b_out(bm3v),.c_out(c3));
+        
+        dff g4(.clk(clk),.reset(reset),.d(a2),.q(a2d));
+        PE pe21 (.clk(clk),.reset(reset), .a_in(a2d),.b_in(bm1v),.a_out(am4h),.b_out(bm4v),.c_out(c4));
+ 
+        PE pe22 (.clk(clk),.reset(reset), .a_in(am4h),.b_in(bm2v),.a_out(am5h),.b_out(bm5v),.c_out(c5));
+        PE pe23 (.clk(clk),.reset(reset), .a_in(am5h),.b_in(bm3v),.a_out(am6h),.b_out(bm6v),.c_out(c6));
+        
+        dff g5(.clk(clk),.reset(reset),.d(a3),.q(a3d));
+        dff g6(.clk(clk),.reset(reset),.d(a3d),.q(a33d));
+        
+        PE pe31 (.clk(clk),.reset(reset), .a_in(a33d),.b_in(bm4v),.a_out(am7h),.b_out(bm7v),.c_out(c7));
+        PE pe32 (.clk(clk),.reset(reset), .a_in(am7h),.b_in(bm5v),.a_out(am8h),.b_out(bm8v),.c_out(c8));
+        PE pe33 (.clk(clk),.reset(reset), .a_in(am8h),.b_in(bm6v),.a_out(am9h),.b_out(bm9v),.c_out(c9));
+ 
+    endmodule
+    
+    module PE (clk,reset,a_in , b_in,a_out,b_out,c_out);
+    parameter data_size = 32;
+    input wire clk,reset;
+    input wire signed [data_size-1 :0] a_in, b_in;
+    output reg signed [data_size-1 :0] a_out, b_out;
+    output reg signed [2*data_size-1 :0 ] c_out;
+    
+    always@(posedge clk)
+    begin
+    if(reset) begin 
+    a_out  <= 0;
+    b_out <= 0;
+    c_out <= 0;
+    
+    end 
+    else 
+    begin
+    c_out <= c_out + (a_in * b_in);
+    a_out <= a_in;
+    b_out <= b_in;
+    
+    end 
+    
+    end 
+    
+   endmodule 
+   
+module dff(
+  input wire signed [31:0] d,
+  input wire clk,
+  input wire reset,
+  output reg signed [31:0] q
+);
+   always @(posedge clk) begin
+    if (reset)
+      q <= 0;
+    else
+      q <= d;
+    end
+endmodule
