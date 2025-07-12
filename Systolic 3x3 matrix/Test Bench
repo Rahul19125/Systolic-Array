@@ -1,0 +1,63 @@
+`timescale 1ns / 1ps
+
+module test_bench;
+
+    parameter data_size = 32;
+    reg clk ;
+    reg reset; 
+    reg signed [data_size-1:0] a1, a2, a3;
+    reg signed [data_size-1:0] b2, b1, b3;
+    wire signed [2*data_size-1:0] c1,c2,c3;
+    wire signed [2*data_size-1:0] c4,c5,c6;
+   wire signed [2*data_size-1:0] c7,c8,c9;
+
+
+ systolic_array dut (
+ .clk(clk),.reset(reset),
+  .a1(a1),.a2(a2),.a3(a3),.b1(b1),.b2(b2),.b3(b3),
+ .c1(c1),.c2(c2),.c3(c3),
+ .c4(c4),.c5(c5),.c6(c6),
+ .c7(c7),.c8(c8),.c9(c9)
+    );
+
+initial
+  begin   
+ clk = 0;
+ 
+ forever #5 clk = ~clk;
+ end 
+
+   
+  initial
+   begin
+        
+       reset = 1;
+       a1 = 0; a2 = 0;a3 = 0;
+       b1 = 0; b2 = 0; b3 = 0;
+       
+        
+       #10 ;
+       reset = 0;
+       
+        a1 = 1; a2 =2; a3 = 3;
+        b1 = 9 ;b2 = 6; b3 = 3;
+        
+       #10;
+       
+       a1 = 4; a2=5; a3 =6;  
+       b1 = 8 ; b2 = 5; b3 = 2;
+       
+       #10;
+       
+       a1 = 7; a2 = 8; a3= 9; 
+       b1= 7; b2= 4; b3 = 1;
+      
+       #100;
+       $finish;
+  end 
+   initial
+    begin
+     $monitor("Time=%0t | c1=%d c2=%d c3=%d | c4=%d c5=%d c6=%d | c7=%d c8=%d c9=%d",
+      $time, c1, c2, c3, c4, c5, c6, c7, c8, c9);
+     end
+endmodule 
