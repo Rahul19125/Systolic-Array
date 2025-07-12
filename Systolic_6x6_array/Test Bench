@@ -1,0 +1,81 @@
+ `timescale 1ns / 1ps
+
+module test_bench;
+
+    reg clk;
+    reg reset;
+    reg [1:0] select;
+
+    wire [31:0] a0_out, a1_out, a2_out;
+    wire [31:0] b0_out, b1_out, b2_out;
+    wire signed [63:0] c1, c2, c3, c4, c5, c6, c7, c8, c9;
+ 
+    
+    integer i;
+ 
+    systolic_6x6_array mem (
+        .clk(clk),
+        .reset(reset),
+        .select(select),
+        .a0_out(a0_out),
+        .a1_out(a1_out),
+        .a2_out(a2_out),
+        .b0_out(b0_out),
+        .b1_out(b1_out),
+        .b2_out(b2_out)
+    );
+
+    systolic_array sa (
+        .clk(clk),
+        .reset(reset),
+        .a0_out(a0_out),
+        .a1_out(a1_out),
+        .a2_out(a2_out),
+        .b0_out(b0_out),
+        .b1_out(b1_out),
+        .b2_out(b2_out),
+        .c1(c1), .c2(c2), .c3(c3),
+        .c4(c4), .c5(c5), .c6(c6),
+        .c7(c7), .c8(c8), .c9(c9)
+    );
+    
+     c_mapping map (
+        .clk(clk),
+        .reset(reset),
+        .select(select),
+        .c1(c1), .c2(c2), .c3(c3),
+        .c4(c4), .c5(c5), .c6(c6),
+        .c7(c7), .c8(c8), .c9(c9)
+       
+    );
+
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    
+    initial begin
+        reset = 1;
+//        #10;
+        select = 2'b00;
+        #20;
+        reset = 0;
+//         #20;
+//         #100;
+         
+        for (i = 0; i < 4;i=i+1) begin
+            select = i[1:0];          
+             #130;  
+            
+               reset = 1;
+               #10;
+               reset = 0;
+            end
+    
+             
+                    $finish;
+                end
+
+                            endmodule
+
